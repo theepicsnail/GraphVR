@@ -1,0 +1,24 @@
+{
+  "name": "graphvr",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theepicsnail/GraphVR.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/theepicsnail/GraphVR/issues"
+  },
+  "homepage": "https://github.com/theepicsnail/GraphVR#readme",
+  "dependencies": {
+    "es6-promise": "^4.0.5",
+    "ngraph.forcelayout3d": "0.0.15",
+    "ngraph.graph": "0.0.12",
+    "three": "^0.82.1",
+    "webvr-boilerplate": "^0.4.9",
+    "webvr-polyfill": "^0.9.23"
+  }
+}
