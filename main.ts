@@ -1,5 +1,3 @@
-declare var require: any;
-
 import {scene, setFrameCB, run} from "./setup";
 
 function RandomUnitVector() {

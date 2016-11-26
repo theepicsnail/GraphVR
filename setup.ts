@@ -1,5 +1,3 @@
-declare var WebVRManager: any;
-
 // Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
 // Only enable it if you actually need to.
 var renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
@@ -39,7 +37,7 @@ function animate(timestamp) {
   onFrame && onFrame(timestamp);
   controls.update();
   // Render the scene through the manager.
-  manager.render(scene, camera, timestamp);
+  manager.render(scene, camera);
   effect.render(scene, camera);
 
   vrDisplay.requestAnimationFrame(animate);

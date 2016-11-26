@@ -4,5 +4,6 @@
     "./project.d.ts",
     "main.ts",
     "setup.ts"
-  ]
+  ],
+  "compileOnSave": false
 }
