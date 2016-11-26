@@ -2,8 +2,8 @@
   "files":[
     "./typings/globals/three/index.d.ts",
     "./project.d.ts",
-    "main.ts",
-    "setup.ts"
+    "./src/main.ts",
+    "./src/setup.ts"
   ],
   "compileOnSave": false
 }

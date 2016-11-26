@@ -1,6 +1,6 @@
 // Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
 // Only enable it if you actually need to.
-var renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setClearColor(0x222222);
 
@@ -24,8 +24,8 @@ effect.setSize(window.innerWidth, window.innerHeight);
 
 // Create a VR manager helper to enter and exit VR mode.
 var params = {
-  hideButton: false, // Default: false.
-  isUndistorted: false // Default: false.
+    hideButton: false, // Default: false.
+    isUndistorted: false // Default: false.
 };
 var manager = new WebVRManager(renderer, effect, params);
 
@@ -34,19 +34,19 @@ window.addEventListener('vrdisplaypresentchange', onResize, true);
 
 // Request animation frame loop function
 function animate(timestamp) {
-  onFrame && onFrame(timestamp);
-  controls.update();
-  // Render the scene through the manager.
-  manager.render(scene, camera);
-  effect.render(scene, camera);
+    onFrame && onFrame(timestamp);
+    controls.update();
+    // Render the scene through the manager.
+    manager.render(scene, camera);
+    effect.render(scene, camera);
 
-  vrDisplay.requestAnimationFrame(animate);
+    vrDisplay.requestAnimationFrame(animate);
 }
 
 function onResize(e) {
-  effect.setSize(window.innerWidth, window.innerHeight);
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+    effect.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
 }
 
 var vrDisplay;
@@ -54,15 +54,15 @@ var vrDisplay;
 // Get the HMD, and if we're dealing with something that specifies
 // stageParameters, rearrange the scene.
 export function run() {
-  (<any>navigator).getVRDisplays().then(function(displays) {
-    if (displays.length > 0) {
-      vrDisplay = displays[0];
-      vrDisplay.requestAnimationFrame(animate);
-    }
-  });
+    (<any>navigator).getVRDisplays().then(function(displays) {
+        if (displays.length > 0) {
+            vrDisplay = displays[0];
+            vrDisplay.requestAnimationFrame(animate);
+        }
+    });
 }
 
 var onFrame;
 export function setFrameCB(handler) {
-  onFrame = handler;
+    onFrame = handler;
 }
