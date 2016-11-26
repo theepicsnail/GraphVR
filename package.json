@@ -16,6 +16,7 @@
   "dependencies": {
     "es6-promise": "^4.0.5",
     "ngraph.forcelayout3d": "0.0.15",
+    "ngraph.generators": "0.0.17",
     "ngraph.graph": "0.0.12",
     "three": "^0.82.1",
     "webvr-boilerplate": "^0.4.9",
