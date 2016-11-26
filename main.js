@@ -5,6 +5,10 @@ function RandomUnitVector() {
     Math.random() * 2 - 1 ).normalize();
 }
 
+function RandomColor() {
+  return new THREE.Color(0xFF).offsetHSL(Math.random(), 0,0);
+}
+
 function Graph () {
   this.nodes = new THREE.Geometry();
   this.edges = new THREE.Geometry();
@@ -31,23 +35,32 @@ function Graph () {
   }
 }
 
-function MakeTree(graph, pos, color, depth) {
-  var id = graph.addNode(pos, color);
-  if(!depth) return id;
-
-  for(var i = 0; i<depth; i++){
-    var childPos = RandomUnitVector().multiplyScalar(.1).add(pos);
-    var childColor = color.clone().offsetHSL(Math.random()*.3-.15, 0, 0);
-    var childId = MakeTree(graph, childPos, childColor, depth-1);
-    graph.addEdge(id, childId);
-  }
-  return id;
-}
-
-
 function setupGraph() {
   var g = new Graph();
-  MakeTree(g, new THREE.Vector3(0,1.5,1), new THREE.Color(0xff0000), 6);
+
+  var generator = require('ngraph.generators').factory(function(){
+    var idMapper = {};
+    function ensureNode(id) {
+      if(idMapper[id] == undefined)
+        idMapper[id] = g.addNode(RandomUnitVector(), RandomColor());
+    }
+    return {
+      addLink(from, to) {
+        ensureNode(to);
+        ensureNode(from);
+        console.log("link", from, to);
+        g.addEdge(idMapper[from], idMapper[to]);
+      },
+      addNode(nodeId) {
+        ensureNode(nodeId);
+      },
+      getNodesCount() {
+        return g.nodes.vertices.length;
+      }
+    };
+  });
+  generator.grid3(3,4,5);
+
 
   var group = new THREE.Group();
   var lines = new THREE.LineSegments(g.edges, new THREE.LineBasicMaterial({vertexColors: THREE.VertexColors}));
@@ -56,12 +69,25 @@ function setupGraph() {
 
   group.add(new THREE.Points(g.nodes, new THREE.PointsMaterial({size:.1, vertexColors: THREE.VertexColors})));
   scene.add(group);
+  
+  // Scale to a 'reasonable' size.
+  // NGraph uses an ideal edge length of 30, which in VR means 30 meters.
+  // Setting edge lengths in there impacts the physics in weird ways.
+  // So instead, let ngraph use that size, we'll scale edges here.
+  var scale = .5/ 30; // make each edge .5 meters.
+  group.scale.set(scale,scale,scale);
 
   return g;
 }
 
+
 function setupLayout(g) {
   var layout = require('ngraph.forcelayout3d')(g.ngraph);
+
+  g.nodes.vertices[0].x = 0;
+  g.nodes.vertices[0].y = 0;
+  g.nodes.vertices[0].z = -10;
+
   g.ngraph.forEachNode(function(node){
     if(node.id != 0) return;
     var pos = g.nodes.vertices[node.id];
@@ -71,10 +97,17 @@ function setupLayout(g) {
   return layout;
 }
 
+
 var graph = setupGraph();
 var layout = setupLayout(graph);
 window.update = function(timestamp){
-  layout.step();
+  if(layout.step()) {
+    window.update = function(){
+
+    };
+    console.log("Done");
+  }
+
   graph.ngraph.forEachNode(function(node){
     var pos = layout.getNodePosition(node.id);
     var v = graph.nodes.vertices[node.id];
