@@ -21,6 +21,7 @@
     "three": "^0.82.1",
     "ts-loader": "^1.2.2",
     "typescript": "^2.0.10",
+    "typings": "^2.0.0",
     "webvr-boilerplate": "^0.4.9",
     "webvr-polyfill": "^0.9.23"
   }

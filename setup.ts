@@ -1,4 +1,3 @@
-declare var THREE: any;
 declare var WebVRManager: any;
 
 // Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.

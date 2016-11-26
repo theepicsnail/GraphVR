@@ -1,0 +1,8 @@
+{
+  "files":[
+    "./typings/globals/three/index.d.ts",
+    "./project.d.ts",
+    "main.ts",
+    "setup.ts"
+  ]
+}

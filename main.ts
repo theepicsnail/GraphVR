@@ -1,4 +1,3 @@
-declare var THREE: any;
 declare var require: any;
 
 import {scene, setFrameCB, run} from "./setup";
