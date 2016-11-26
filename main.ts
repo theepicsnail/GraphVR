@@ -1,3 +1,8 @@
+declare var THREE: any;
+declare var require: any;
+
+import {scene, setFrameCB, run} from "./setup";
+
 function RandomUnitVector() {
   return new THREE.Vector3(
     Math.random() * 2 - 1,
@@ -69,7 +74,7 @@ function setupGraph() {
 
   group.add(new THREE.Points(g.nodes, new THREE.PointsMaterial({size:.1, vertexColors: THREE.VertexColors})));
   scene.add(group);
-  
+
   // Scale to a 'reasonable' size.
   // NGraph uses an ideal edge length of 30, which in VR means 30 meters.
   // Setting edge lengths in there impacts the physics in weird ways.
@@ -100,11 +105,9 @@ function setupLayout(g) {
 
 var graph = setupGraph();
 var layout = setupLayout(graph);
-window.update = function(timestamp){
+setFrameCB(function(timestamp){
   if(layout.step()) {
-    window.update = function(){
-
-    };
+    setFrameCB(null);
     console.log("Done");
   }
 
@@ -115,5 +118,6 @@ window.update = function(timestamp){
   });
   graph.nodes.verticesNeedUpdate = true;
   graph.edges.verticesNeedUpdate = true;
-}
+});
+
 setTimeout(run, 0);
