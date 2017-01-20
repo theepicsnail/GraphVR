@@ -1,3 +1,8 @@
+var ViveController = require('three-vive-controller')(THREE)
+
+
+
+
 // Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
 // Only enable it if you actually need to.
 var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -10,12 +15,17 @@ document.body.appendChild(renderer.domElement);
 // Create a three.js scene.
 export var scene = new THREE.Scene();
 
+
+
+
 // Create a three.js camera.
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
 
 var controls = new THREE.VRControls(camera);
 controls.standing = true;
-controls.standing = true;
+export var controller = new ViveController(0, controls)
+scene.add(controller)
+
 
 // Apply VR stereo rendering to renderer.
 var effect = new THREE.VREffect(renderer);

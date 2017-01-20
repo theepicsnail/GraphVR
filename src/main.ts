@@ -1,121 +1,172 @@
 
-import { scene, setFrameCB, run } from "./setup";
+import {run, scene, setFrameCB, controller} from "./setup";
 
 function RandomUnitVector() {
-    return new THREE.Vector3(
-        Math.random() * 2 - 1,
-        Math.random() * 2 - 1,
-        Math.random() * 2 - 1).normalize();
+  var U = Math.random();
+  var V = Math.random();
+  var theta = 2 * Math.PI * U;
+  var phi = Math.acos(2 * V - 1);
+  var u = Math.cos(phi);
+  var x = Math.sqrt(1 - u * u) * Math.cos(theta);
+  var y = Math.sqrt(1 - u * u) * Math.sin(theta);
+  var z = u;
+
+  return new THREE.Vector3(x, y, z)
 }
 
 function RandomColor() {
-    return new THREE.Color(0xFF).offsetHSL(Math.random(), 0, 0);
+  return new THREE.Color(0xFF).offsetHSL(Math.random(), 0, 0);
 }
 
 function Graph() {
-    this.nodes = new THREE.Geometry();
-    this.edges = new THREE.Geometry();
-    this.ngraph = require('ngraph.graph')();
+  this.nodes = new THREE.Geometry();
+  this.edges = new THREE.Geometry();
+  this.ngraph = require('ngraph.graph')();
 
-    this.addNode = function(position, color) {
-        var id = this.nodes.vertices.length;
-        this.ngraph.addNode(id, {
-            'pos': position,
-            'color': color
-        });
-        this.nodes.vertices.push(position);
-        this.nodes.colors.push(color);
-        return id;
-    }.bind(this);
+  this.addNode = function(position, color) {
+    var id = this.nodes.vertices.length;
+    this.ngraph.addNode(id, {'pos' : position, 'color' : color});
+    this.nodes.vertices.push(position);
+    this.nodes.colors.push(color);
+    return id;
+  }.bind(this);
 
-    this.addEdge = function(source, dest) {
-        this.ngraph.addLink(source, dest);
-        this.edges.vertices.push(this.nodes.vertices[source]);
-        this.edges.colors.push(this.nodes.colors[source]);
+  this.addEdge = function(source, dest) {
+    this.ngraph.addLink(source, dest);
+    this.edges.vertices.push(this.nodes.vertices[source]);
+    this.edges.colors.push(this.nodes.colors[source]);
 
-        this.edges.vertices.push(this.nodes.vertices[dest]);
-        this.edges.colors.push(this.nodes.colors[dest]);
+    this.edges.vertices.push(this.nodes.vertices[dest]);
+    this.edges.colors.push(this.nodes.colors[dest]);
+  }
+}
+
+function scale(input, srcmin, srcmax, dstmin, dstmax) {
+  return (input * 1.0 - srcmin) / srcmax * (dstmax - dstmin) + dstmin;
+}
+
+var PC = false;
+const N = 10000;
+var group = new THREE.Group();
+var nodes = new THREE.Geometry();
+
+for (var alphaPercent = 0; alphaPercent < 100; alphaPercent += 2)
+  for (var betaPercent = 0; betaPercent < 100; betaPercent += .2) {
+    var alpha = scale(alphaPercent, 0, 100, 4, 8);
+    var beta = scale(betaPercent, 0, 100, -1, 1);
+    var x = 0;
+    for (var i = 0; i < 50; i++) {
+      x = Math.exp(-alpha * x * x) + beta;
+      if (i < 40)
+        continue;
+
+      var v = new THREE.Vector3(             //
+          scale(x, -1, 1, -1, 1),            //
+          scale(alphaPercent, 0, 100, 0, 2), //
+          scale(beta, -1, 1, -1, 1),         //
+          );
+      nodes.vertices.push(v);
+      let c = new THREE.Color();
+      c.setRGB(scale(v.x, -1, 1, 0, 1), //
+               scale(v.y, 0, 2, 0, 1),  //
+               scale(v.z, -1, 1, 0, 1));
+      nodes.colors.push(c)
     }
-}
+  }
 
-function setupGraph() {
-    var g = new Graph();
+//  nodes.vertices.push(RandomUnitVector());
 
-    var generator = require('ngraph.generators').factory(function() {
-        var idMapper = {};
-        function ensureNode(id) {
-            if (idMapper[id] == undefined)
-                idMapper[id] = g.addNode(RandomUnitVector(), RandomColor());
-        }
-        return {
-            addLink(from, to) {
-                ensureNode(to);
-                ensureNode(from);
-                console.log("link", from, to);
-                g.addEdge(idMapper[from], idMapper[to]);
-            },
-            addNode(nodeId) {
-                ensureNode(nodeId);
-            },
-            getNodesCount() {
-                return g.nodes.vertices.length;
-            }
-        };
-    });
-    generator.grid3(3, 4, 5);
+var points = new THREE.Points(
+    nodes,
+    new THREE.PointsMaterial(
+        {size : PC ? .05 : .001, vertexColors : THREE.VertexColors}));
+points.frustumCulled = false;
+window.g = group;
+group.add(points);
+
+scene.add(group);
+// Scale
+window.c = controller;
 
 
-    var group = new THREE.Group();
-    var lines = new THREE.LineSegments(g.edges, new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors }));
-    lines.frustumCulled = false;
-    group.add(lines);
-
-    group.add(new THREE.Points(g.nodes, new THREE.PointsMaterial({ size: .1, vertexColors: THREE.VertexColors })));
-    scene.add(group);
-
-    // Scale to a 'reasonable' size.
-    // NGraph uses an ideal edge length of 30, which in VR means 30 meters.
-    // Setting edge lengths in there impacts the physics in weird ways.
-    // So instead, let ngraph use that size, we'll scale edges here.
-    var scale = .5 / 30; // make each edge .5 meters.
-    group.scale.set(scale, scale, scale);
-
-    return g;
-}
+var geometry = new THREE.SphereGeometry( .01, 32, 32 );
+var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+var cube = new THREE.Mesh(geometry, material);
+controller.add(cube);
+var c2 = cube.clone();
+c2.translateZ(-.0762); // 3 inches in meters
+c2.scale.multiplyScalar(.5);
+controller.add(c2);
 
 
-function setupLayout(g) {
-    var layout = require('ngraph.forcelayout3d')(g.ngraph);
-
-    g.nodes.vertices[0].x = 0;
-    g.nodes.vertices[0].y = 0;
-    g.nodes.vertices[0].z = -10;
-
-    g.ngraph.forEachNode(function(node) {
-        if (node.id != 0) return;
-        var pos = g.nodes.vertices[node.id];
-        layout.setNodePosition(node.id, pos.x, pos.y, pos.z);
-    });
-    layout.pinNode(g.ngraph.getNode(0), true);
-    return layout;
-}
 
 
-var graph = setupGraph();
-var layout = setupLayout(graph);
+let size = 24;
+let text = "Hello world";
+
+					var canvas = document.createElement("canvas");
+					canvas.width = 200;
+					canvas.height = 200;
+					var context = canvas.getContext("2d");
+					context.font = size + "px Monospace";
+					//context.textAlign = "center";
+
+					var texture = new THREE.Texture(canvas);
+					texture.needsUpdate = true;
+					var material = new THREE.MeshBasicMaterial({
+						map : texture
+					});
+					var mesh = new THREE.Mesh(new THREE.PlaneGeometry(.3, .3), material);
+					mesh.scale.divideScalar(5);
+
+
+mesh.translateY(.01);
+mesh.rotateX(-Math.PI/2);
+
+
+var showingMenu = false;
+controller.on(controller.MenuPressed, ()=>{
+	showingMenu = true;
+	controller.add(mesh);
+
+});
+controller.on(controller.MenuUnpressed, ()=>{
+	showingMenu = false;
+	controller.remove(mesh);
+});
+
+
+
+
+var C = 0;
 setFrameCB(function(timestamp) {
-    if (layout.step()) {
-        setFrameCB(null);
-        console.log("Done");
-    }
+	if(showingMenu){
 
-    graph.ngraph.forEachNode(function(node) {
-        var pos = layout.getNodePosition(node.id);
-        var v = graph.nodes.vertices[node.id];
-        v.set(pos.x, pos.y, pos.z);
-    });
-    graph.nodes.verticesNeedUpdate = true;
-    graph.edges.verticesNeedUpdate = true;
+		context.fillStyle = "black";
+		context.fillRect(0, 0, 600, 600);
+		context.fillStyle = "white";
+		context.fillText("x: " + controller.position.x.toFixed(4), 0, 20);
+		context.fillText("y: " + controller.position.y.toFixed(4), 0, 40);
+		context.fillText("z: " + controller.position.z.toFixed(4), 0, 60);
+		texture.needsUpdate = true;
+
+
+	}
+  /*var t = timestamp*.01;
+
+  var A = Math.random() * t * Math.PI * 100;
+  var B = Math.random() * t * Math.PI * 100;
+  let x = Math.cos(t*A);
+  let y = Math.sin(t*A) * Math.sin(t*B);
+  let z = Math.sin(t*A) * Math.cos(t*B);
+  x *= 1;
+  y *= 1;
+  z *= 1;
+  nodes.vertices[C].x = x;
+  nodes.vertices[C].y = y;
+  nodes.vertices[C].z = z;
+  C = (C+1)%N;
+  nodes.verticesNeedUpdate = true;*/
 });
 
 setTimeout(run, 0);

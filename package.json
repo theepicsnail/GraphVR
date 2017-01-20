@@ -19,6 +19,7 @@
     "ngraph.generators": "0.0.17",
     "ngraph.graph": "0.0.12",
     "three": "^0.82.1",
+    "three-vive-controller": "^1.4.1",
     "ts-loader": "^1.2.2",
     "typescript": "^2.0.10",
     "typings": "^2.0.0",
