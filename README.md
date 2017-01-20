@@ -1,5 +1,11 @@
 # GraphVR
 
+To install:
+```bash
+npm install
+typings i
+```
+
 To run:
 ```bash
 #!/bin/sh
