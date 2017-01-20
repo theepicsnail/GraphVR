@@ -105,8 +105,8 @@ let size = 24;
 let text = "Hello world";
 
 					var canvas = document.createElement("canvas");
-					canvas.width = 200;
-					canvas.height = 200;
+					canvas.width = 256;
+					canvas.height = 256;
 					var context = canvas.getContext("2d");
 					context.font = size + "px Monospace";
 					//context.textAlign = "center";
