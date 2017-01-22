@@ -10,21 +10,17 @@ function gaussIteratedMap(alpha, beta) {
 
 function generatePlot(): THREE.Points {
   let cloud = new PointCloud();
-  let ArgCombinations = 10000;
-  let PointsPerCombination = 10;
-
-  for (let _ = 0; _ < 1000; _++) { // Different Parameter choices
-    let alpha = Math.random() * 2 - 1;
+  for (let _ = 0; _ < 100000; _++) { // Different Parameter choices
+    let alpha = Math.random() * 2 + 4.5;
     let beta = Math.random() * 2 - 1;
 
-    var gim = gaussIteratedMap(alpha, beta);
-    var x = 0;
-    for (let _ = 0; _ < 40; _++) {
+    let gim = gaussIteratedMap(alpha, beta);
+    let x = 0;
+    let count = Math.random() * 10 + 40;
+    while (count-- > 0) {
       x = gim(x);
     }
-    for (let _ = 0; _ < 10; _++) {
-      cloud.addPoint(x, alpha, beta);
-    }
+    cloud.addPoint(x, alpha - 4.5, beta);
   }
   return cloud.points;
 }
